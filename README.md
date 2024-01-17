@@ -20,4 +20,4 @@ Create a question and answer style app where you are asked to deaw circuits, the
 - CircuitAnalysis is hit and miss with voltages. Sometimes it works.
 - Volt meter is missing from nodeConnectionMap
 - Duplicate connection can crash app.
-- Double click should delete line but doesnt.
+- Double click should delete line but doesnt
