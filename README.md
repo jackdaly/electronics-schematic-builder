@@ -21,3 +21,26 @@ Create a question and answer style app where you are asked to deaw circuits, the
 - Volt meter is missing from nodeConnectionMap
 - Duplicate connection can crash app.
 - Double click should delete line but doesnt
+
+## Example CircuitData
+This circuit works for MNA however, it is classed as incorrect because the meter is not being added to the dictionary in circuitAnalysis.js 
+
+![alt text](TestCircuit.png "TestCircuit")
+
+```text
+circuitData = [
+    {id: 'b1', type: 'battery', value: '10', connections: [
+    {nodeId: 'output', connectedToComponentId: 'r1', connectedToNodeId: 'output'},
+    {nodeId: 'input', connectedToComponentId: 'r2', connectedToNodeId: 'input'}
+]},
+{id: 'r1', type: 'resistor', value: '1000', connections: [
+    {nodeId: 'output', connectedToComponentId: 'r1', connectedToNodeId: 'output'},
+    {nodeId: 'input', connectedToComponentId: 'r2', connectedToNodeId: 'input'}
+]},
+{id: 'm1', type: 'meter', value: '0', connections: [{nodeId: 'input', connectedToComponentId: 'r1', connectedToNodeId: 'input'}]},
+{id: 'r2', type: 'resistor', value: '1000', connections: [
+    {nodeId: 'output', connectedToComponentId: 'r1', connectedToNodeId: 'input'},
+    {nodeId: 'input', connectedToComponentId: 'b1', connectedToNodeId: 'input'}
+]}
+]
+```
