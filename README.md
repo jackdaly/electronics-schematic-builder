@@ -44,3 +44,16 @@ circuitData = [
 ]}
 ]
 ```
+However, when the resistors are flipped positions, it returns incorrect voltages:
+
+b1_output
+: 
+9.990009990009991
+ground
+: 
+0
+r1_output
+: 
+-9990.00999000999
+
+![alt text](TestCircuitResistorFlip.png "TestCircuit")
