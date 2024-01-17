@@ -3,7 +3,7 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ### Goal:
-Create a question and answer style app where you are asked to deaw circuits, the app checks it and confirms its correct or not.
+Create a question and answer style app where you are asked to draw circuits, the app checks it and confirms it's correct or not.
 
 ### Current features:
 - Drag resistors (worth 1kohm), batteries (10V) and a volt meter onto the grid
