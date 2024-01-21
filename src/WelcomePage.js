@@ -6,9 +6,27 @@ const WelcomePage = ({ onGetStarted }) => {
   const [email, setEmail] = useState('');
   const navigate = useNavigate(); // Hook to navigate
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // You might want to do something with the email, like saving it or sending it to an API
+    try {
+      const response = await fetch('https://hooks.zapier.com/hooks/catch/17684077/3ga5ynn/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      if (response.ok) {
+        console.log('Email sent to Zapier');
+        // Here you can navigate to another page or show a success message
+      } else {
+        console.error('Failed to send email to Zapier');
+      }
+    } catch (error) {
+      console.error('Error sending email to Zapier', error);
+    }
+
+
     navigate('/schematic-question'); // Navigate to the schematic question page
   };
 
