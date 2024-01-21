@@ -1,6 +1,69 @@
-.App {
-  text-align: center;
+
+
+.app {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-height: 100svh;
+  justify-content: space-between; /* Keep header at top and footer at bottom */
+  margin: 0 auto;
+  box-sizing: border-box;
 }
+
+/* For mobile
+@media (max-width: 767px) {
+  .app {
+    min-height: 100svh;
+    min-height: fill-available;
+    min-height: -webkit-fill-available;
+  }
+} */
+
+
+
+.content {
+  flex-grow: 1; /* Allows the content to expand */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between !important;
+  text-align: left !important;
+}
+
+
+.footer {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  align-items: center; /* Centers the items horizontally */
+  gap: 20px; /* Adds space between the Toolbar and TestButton */
+  margin-bottom: 100px;
+}
+
+@media (min-width: 768px) {
+  .content {
+    max-width: 1200px; /* Adjust the maximum width as needed */
+    width: 95%; /* Take up the entire available width */
+    margin: 0 auto;
+    margin-bottom: 20px !important;
+  }
+  
+  .footer {
+    max-width: 1200px; /* Adjust the maximum width as needed */
+    width: 95%; /* Take up the entire available width */
+    margin: 0 auto;
+    margin-bottom: 80px !important;
+  }
+}
+
+/* For mobile */
+@media (max-width: 767px) {
+  .content, .footer {
+    width: 95%; /* Take up the entire screen width */
+    max-width: none; /* Remove the maximum width */
+    margin: 0 auto;
+    margin-bottom: 18px !important;
+  }
+}
+
 
 .App-logo {
   height: 40vmin;
@@ -35,4 +98,17 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+body {
+  font-family: 'sofia-pro', sans-serif;
+  overflow: hidden; /* Prevents scrolling */
+  touch-action: none; /* Prevents other touch-related actions */
+}
+
+
+h3 {
+  font-size:20px;
+  font-weight: bold;
+  font-family: 'sofia-pro', sans-serif;
 }

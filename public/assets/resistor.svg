@@ -1,9 +1,10 @@
 <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_419_2)">
-<path d="M0 25H9L11 22L13 25L15 28L17 25L19 22L21 25L23 28L25 25L27 22L29 25L31 28L33 25L35 22L37 25L39 28L41 25H50" stroke="#AFE5FF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<g clip-path="url(#clip0_1_2)">
+<rect x="5" y="5" width="40" height="40" rx="20" fill="white"/>
+<path d="M0 25H9L11 22L13 25L15 28L17 25L19 22L21 25L23 28L25 25L27 22L29 25L31 28L33 25L35 22L37 25L39 28L41 25H50" stroke="#00ACFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <defs>
-<clipPath id="clip0_419_2">
+<clipPath id="clip0_1_2">
 <rect width="50" height="50" fill="white"/>
 </clipPath>
 </defs>

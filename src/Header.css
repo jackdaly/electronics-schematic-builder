@@ -1,0 +1,36 @@
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px; /* Adjust padding to match your design */
+    background-color:white; /* Background color of the header */
+  }
+  
+  .exit-button {
+    font-size: 30px; /* Adjust font size to match your design */
+    color: #E5E5E5; /* Button text color */
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .exit-button:hover {
+    color: #FD4D50;
+    transition: 500ms;
+  }
+  
+  .progress-bar-container {
+    position: relative;
+    flex-grow: 1;
+    height: 10px; /* Height of the progress bar */
+    background-color: #E5E5E5; /* Light grey background */
+    border-radius: 5px; /* Rounded corners */
+    margin-left: 16px; /* Space between button and progress bar */
+  }
+  
+  .progress-bar {
+    height: 100%;
+    background-color: #95D151; /* Darker grey for the progress */
+    border-radius: 5px; /* Inherit the same border radius */
+    transition: width 0.5s ease; /* Smooth transition for the progress bar */
+  }
+  

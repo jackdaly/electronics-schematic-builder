@@ -1,0 +1,29 @@
+.test-button {
+    width: 100%;
+    box-sizing: border-box;
+
+    min-height: 1em; /* Base height */
+    font-size: 1rem; /* Adjust font size as needed */
+
+    border-radius: 20px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-style: none;
+  }
+
+
+
+.test-button:active {
+    box-shadow: none !important;
+    transform: translateY(5px);
+    transition: 0.1s;
+  }
+
+  .test-button:hover {
+    filter: brightness(105%);
+    transition: 0.1s;
+  }
+  
