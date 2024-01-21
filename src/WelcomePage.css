@@ -1,0 +1,91 @@
+/* WelcomePage.css */
+
+.welcome-container {
+    max-width: 400px;
+    margin: auto;
+    text-align: center;
+    padding: 20px;
+    border-radius: 8px;
+    background: #fff;
+    font-family: 'sofia-pro', sans-serif;
+
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-height: 100svh;
+    justify-content: space-between; /* Keep header at top and footer at bottom */
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+  
+  .welcome-container h1 {
+    color: #333;
+    margin-bottom: 16px;
+  }
+  
+  .welcome-container p {
+    color: #666;
+    margin-bottom: 24px;
+  }
+  
+  .welcome-container input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 16px;
+    border: 1px solid #F7F7F7;
+    border-radius: 20px;
+    background-color: #F7F7F7;
+  }
+  
+  .welcome-container button {
+    font-family: 'sofia-pro', sans-serif;
+    font-weight: 800;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+
+    min-height: 1em; /* Base height */
+    font-size: 1rem; /* Adjust font size as needed */
+
+    border-radius: 20px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-style: none;
+
+    background-color: #7BC625 ;
+    box-shadow: 0 5px #5BA61C;
+    color: #fff;
+  }
+  
+  .welcome-container button:hover {
+    filter: brightness(105%);
+    transition: 0.1s;
+  }
+  .welcome-container button:active {
+    box-shadow: none !important;
+    transform: translateY(5px);
+    transition: 0.1s;
+  }
+
+
+  footer {
+    margin-top: 32px;
+  }
+  
+  footer p {
+    margin-bottom: 8px;
+    color: #333;
+  }
+  
+  footer a {
+    color: #1FB6FF;
+    text-decoration: none;
+  }
+  
+  footer a:hover {
+    text-decoration: underline;
+  }
+  
