@@ -4,12 +4,16 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const ZAPIER_WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/17684077/3ga5ynn/';
 
 const sendEmailToZapier = async (email) => {
+  // Create a new date object for the current date and time
+  const timestamp = new Date();
+
   const response = await fetch(ZAPIER_WEBHOOK_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ email }),
+    // Include the email and the timestamp in the body
+    body: JSON.stringify({ email, timestamp }),
   });
 
   if (response.ok) {
