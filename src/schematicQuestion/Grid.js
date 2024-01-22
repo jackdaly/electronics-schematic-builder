@@ -379,53 +379,56 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
     [lines, components]
   ); // Add necessary dependencies
 
-  const handleGridClick = useCallback((e) => {
-    console.log("handleGridClick");
+  const handleGridClick = useCallback(
+    (e) => {
+      console.log("handleGridClick");
 
-    // Ensure we're dealing with the grid and not a port
-    if (!e.target.classList.contains("port")) {
-      if (
-        currentLineRef.current &&
-        currentLineRef.current.segments.length > 0
-      ) {
-        // Save the current line's segments to the lines state
-        console.log("currentLineRef", currentLineRef);
-        setLines((prevLines) => [
-          ...prevLines,
-          {
+      // Ensure we're dealing with the grid and not a port
+      if (!e.target.classList.contains("port")) {
+        if (
+          currentLineRef.current &&
+          currentLineRef.current.segments.length > 0
+        ) {
+          // Save the current line's segments to the lines state
+          console.log("currentLineRef", currentLineRef);
+          setLines((prevLines) => [
+            ...prevLines,
+            {
+              ...currentLineRef.current,
+              segments: [...currentLineRef.current.segments],
+            },
+          ]);
+          // In Grid.js, wherever you update the lines
+          setLines((updatedLines) => {
+            onLinesUpdate(updatedLines); // Use the callback passed via props
+            return updatedLines;
+          });
+
+          // Get the last segment's endpoint
+          const lastSegment =
+            currentLineRef.current.segments[
+              currentLineRef.current.segments.length - 1
+            ];
+          const newStartX = lastSegment.x2;
+          const newStartY = lastSegment.y2;
+
+          // Prepare for a new line continuation from the last segment's endpoint
+          const newLine = {
             ...currentLineRef.current,
-            segments: [...currentLineRef.current.segments],
-          },
-        ]);
-        // In Grid.js, wherever you update the lines
-        setLines((updatedLines) => {
-          onLinesUpdate(updatedLines); // Use the callback passed via props
-          return updatedLines;
-        });
+            x1: newStartX,
+            y1: newStartY,
+            x2: newStartX,
+            y2: newStartY,
+          };
 
-        // Get the last segment's endpoint
-        const lastSegment =
-          currentLineRef.current.segments[
-            currentLineRef.current.segments.length - 1
-          ];
-        const newStartX = lastSegment.x2;
-        const newStartY = lastSegment.y2;
-
-        // Prepare for a new line continuation from the last segment's endpoint
-        const newLine = {
-          ...currentLineRef.current,
-          x1: newStartX,
-          y1: newStartY,
-          x2: newStartX,
-          y2: newStartY,
-        };
-
-        // Set the new line as the current line
-        setCurrentLine(newLine);
-        currentLineRef.current = newLine;
+          // Set the new line as the current line
+          setCurrentLine(newLine);
+          currentLineRef.current = newLine;
+        }
       }
-    }
-  }, [lines, onLinesUpdate]); // Include all used state and props in dependency array
+    },
+    [lines, onLinesUpdate]
+  ); // Include all used state and props in dependency array
 
   // When double-clicking, remove the last line drawn by filtering it out from the lines array using the ID
   const handleDoubleClick = useCallback(() => {
@@ -596,21 +599,28 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
       console.log("HPC Setting Lines to current");
       console.log("HPC Lines", lines);
       console.log("HPC currentLineRef.current", currentLineRef.current);
-      setLines((prevLines) => {
-        // Create a new line object based on the current line reference
-        const newLine = {
-          ...currentLineRef.current,
-        };
+      setLines((prevLines) => [...prevLines, currentLineRef.current]);
 
-        // Combine the previous lines with the new line to form the updated lines array
-        const updatedLines = [...prevLines, newLine];
-
-        // Use the callback passed via props to inform the parent component of the updated lines
-        onLinesUpdate(updatedLines);
-
-        // Return the updated lines array to update the state
+      setLines((updatedLines) => {
+        onLinesUpdate(updatedLines); // Use the callback passed via props
         return updatedLines;
       });
+
+      // // Save the current line's segments to the lines state
+      // console.log("currentLineRef", currentLineRef);
+      // setLines((prevLines) => [
+      //   ...prevLines,
+      //   {
+      //     ...currentLineRef.current,
+      //     segments: [...currentLineRef.current.segments],
+      //   },
+      // ]);
+      // // In Grid.js, wherever you update the lines
+      // setLines((updatedLines) => {
+      //   onLinesUpdate(updatedLines); // Use the callback passed via props
+      //   return updatedLines;
+      // });
+
       console.log("HPC Lines array set: ", lines);
 
       console.log("HPC Clearing line: ", lines);
@@ -1130,37 +1140,59 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
             ))}
 
           {/* Render stored lines with labels */}
-          {lines.map((line, index) => (
-            <React.Fragment key={index}>
-              {line.segments && line.segments.length > 0 && (
-                <>
-                  {line.segments.map((segment, segIndex) => (
-                    <line
-                      key={`${index}-${segIndex}`}
-                      x1={segment.x1}
-                      y1={segment.y1}
-                      x2={segment.x2}
-                      y2={segment.y2}
-                      stroke="#1A9BDB"
-                      strokeWidth={4}
-                    />
-                  ))}
-                  {/* Render label for the line */}
-                  {line.label && line.label.text && (
-                    <text
-                      x={line.label.position.x + 5}
-                      y={line.label.position.y + 5}
-                      fill="#1FB6FF"
-                      textAnchor="middle"
-                      dy=".3em" // Adjust for vertical centering
-                    >
-                      {line.label.text}
-                    </text>
-                  )}
-                </>
-              )}
-            </React.Fragment>
-          ))}
+          {lines.map((line, index) => {
+            console.log(`Rendering line ${index}:`, line);
+              if (!line.segments) {
+                console.error('Line without segments encountered', line);
+                return null; // Skip rendering this line
+              }
+            
+            return (
+              <React.Fragment key={index}>
+                {Array.isArray(line.segments) && line.segments.length > 0 && (
+                  <>
+                    {line.segments.map((segment, segIndex) => {
+                      // Optionally, log each segment as well
+                      console.log(
+                        `Rendering segment ${segIndex} of line ${index}:`,
+                        segment
+                      );
+
+                      return (
+                        <line
+                          key={`${index}-${segIndex}`}
+                          x1={segment.x1}
+                          y1={segment.y1}
+                          x2={segment.x2}
+                          y2={segment.y2}
+                          stroke="#1A9BDB"
+                          strokeWidth={4}
+                        />
+                      );
+                    })}
+                    {/* Render label for the line */}
+                    {line.label && line.label.text && (
+                      <>
+                        {console.log(
+                          `Rendering label for line ${index}:`,
+                          line.label
+                        )}
+                        <text
+                          x={line.label.position.x + 5}
+                          y={line.label.position.y + 5}
+                          fill="#1FB6FF"
+                          textAnchor="middle"
+                          dy=".3em" // Adjust for vertical centering
+                        >
+                          {line.label.text}
+                        </text>
+                      </>
+                    )}
+                  </>
+                )}
+              </React.Fragment>
+            );
+          })}
         </svg>
 
         {components.map(renderComponent)}
