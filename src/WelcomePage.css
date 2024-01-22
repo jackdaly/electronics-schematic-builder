@@ -1,5 +1,23 @@
 /* WelcomePage.css */
 
+
+/* WelcomePage.css */
+
+/* Base style for your image */
+.image-responsive {
+  width: 80%; /* This will make the image responsive to its parent container */
+  height: auto; /* This maintains the aspect ratio of the image */
+  max-width: 600px; /* Maximum width for larger screens */
+  display: block; /* Prevent inline default alignment */
+  margin: 0 auto; /* Center the image */
+  margin-bottom: -80px;
+}
+
+.container{
+  justify-content: center;
+  align-items: center;
+}
+
 .welcome-container {
     max-width: 400px;
     margin: auto;

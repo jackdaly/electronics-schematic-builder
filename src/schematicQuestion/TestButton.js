@@ -1,8 +1,13 @@
 import React from 'react';
+
+import { useNavigate } from 'react-router-dom';
+
 import './TestButton.css';
 
 
 const TestButton = ({ onTest,answerState, setAnswerState  }) => {
+  const navigate = useNavigate();
+  
   const buttonstyle = () => {
     // Base styles that should always be applied
     let baseStyle = {
@@ -26,7 +31,13 @@ const TestButton = ({ onTest,answerState, setAnswerState  }) => {
     };
   
     // Determine the onClick handler based on the answer state
-    const handleOnClick = answerState === "correct" || answerState === "incorrect" ? refreshPage : onTest;
+    const handleOnClick = () => {
+      if (answerState === "correct" || answerState === "incorrect") {
+        navigate('/EndPage');
+      } else {
+        onTest();
+      }
+    };
   
 
   return <button className="test-button" style={buttonstyle()} onClick={handleOnClick}>

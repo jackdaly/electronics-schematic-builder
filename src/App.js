@@ -7,6 +7,7 @@ import { Analytics } from '@vercel/analytics/react';
 // Import your screen components
 import SchematicQuestion from './schematicQuestion/schematicQuestion';
 import WelcomePage from './WelcomePage';
+import EndPage from './EndPage';
 
 const App = () => {
   // App state and functions (if any)
@@ -16,6 +17,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<WelcomePage />} />
         <Route path="/schematic-question" element={<SchematicQuestion />} />
+        <Route path="/EndPage" element={<EndPage />} />
         {/* Add other routes as needed */}
       </Routes>
     </Router>

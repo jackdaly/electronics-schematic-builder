@@ -53,7 +53,7 @@ const WelcomePage = ({ onGetStarted }) => {
       </div>
       <footer>
         <p>By Jack Daly</p>
-        <a href="mailto:jackdaly@playmicrocade.com">Send your feedback here!</a>
+        <a href="https://forms.gle/HTAKfRKvpYEFzL4k6">Send your feedback here!</a>
       </footer>
     </div>
   );
