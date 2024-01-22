@@ -29,7 +29,7 @@ const WelcomePage = ({ onGetStarted }) => {
       console.error('Error sending email:', error);
       // Handle errors, maybe set an error message in state and display to user
     }
-    //navigate('/schematic-question'); // Navigate to the schematic question page
+    navigate('/schematic-question'); // Navigate to the schematic question page
   };
 
   return (
