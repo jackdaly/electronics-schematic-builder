@@ -51,7 +51,7 @@ const SchematicQuestion = () => {
   const [labelledLines, setLabelledLines] = useState([]);
   const [answerState, setAnswerState] = useState([]);
 
-  console.log("answerState", answerState);
+  // console.log("answerState", answerState);
 
   const progress = 50; // Just for demonstration.
   const devMode = false;

@@ -199,9 +199,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
       (segment1.x2 - segment1.x1) * (segment2.y2 - segment2.y1) -
       (segment1.y2 - segment1.y1) * (segment2.x2 - segment2.x1);
     if (det === 0) {
-      console.log(
-        "LPA Checking intersection between segments: returning false"
-      );
+      // console.log("LPA Checking intersection between segments: returning false");
       return false; // segments are parallel
     }
     const lambda =
@@ -213,11 +211,11 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
         (segment1.x2 - segment1.x1) * (segment2.y2 - segment1.y1)) /
       det;
     const intersects = 0 < lambda && lambda < 1 && 0 < gamma && gamma < 1;
-    console.log(`LPA Checking intersection between segments:`, {
-      segment1,
-      segment2,
-      intersects,
-    });
+    // console.log(`LPA Checking intersection between segments:`, {
+    //   segment1,
+    //   segment2,
+    //   intersects,
+    // });
     return intersects;
   };
 
@@ -237,21 +235,21 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
       segment.x2 > componentRect.left &&
       segment.y1 < componentRect.bottom &&
       segment.y2 > componentRect.top;
-    console.log(`LPA Checking overlap between segment and component:`, {
-      segment,
-      component,
-      overlaps,
-    });
+    // console.log(`LPA Checking overlap between segment and component:`, {
+    //   segment,
+    //   component,
+    //   overlaps,
+    // });
     return overlaps;
   };
 
   // Function to check if a segment overlaps with existing lines or components
   const doesSegmentOverlap = (segment, existingLines, components) => {
-    console.log(`LPA segment, existingLines, components:`, {
-      segment,
-      existingLines,
-      components,
-    });
+    // console.log(`LPA segment, existingLines, components:`, {
+    //   segment,
+    //   existingLines,
+    //   components,
+    // });
     // Check against other line segments
     const lineOverlap = existingLines.some((line) => {
       return (
@@ -300,10 +298,10 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
       doesSegmentOverlap(segment, existingLines, components)
     );
 
-    console.log(`LPA Path options overlap status:`, {
-      option1Overlaps,
-      option2Overlaps,
-    });
+    // console.log(`LPA Path options overlap status:`, {
+    //   option1Overlaps,
+    //   option2Overlaps,
+    // });
 
     // Choose the path that doesn't overlap, or if both overlap, default to the first option
     return option1Overlaps && !option2Overlaps ? pathOption2 : pathOption1;
@@ -321,7 +319,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
     (e) => {
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      console.log("updateLineToCursor -------");
+      console.log("updateLineToCursor");
       // Log the event or other relevant information before state update
       //console.log("Mouse event:", e);
 
@@ -362,7 +360,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
           components
         );
 
-        console.log("lShapedPath", lShapedPath);
+        //console.log("lShapedPath", lShapedPath);
 
         const newState = {
           ...current,
@@ -370,7 +368,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
           y2: cursorY,
           segments: lShapedPath,
         };
-        console.log("newState", newState);
+        //console.log("newState", newState);
         //console.log("New state after update:", newState);
         return newState;
       });
@@ -427,7 +425,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
         currentLineRef.current = newLine;
       }
     }
-  }, []); // Make sure to add necessary dependencies if you use any
+  }, [lines, onLinesUpdate]); // Include all used state and props in dependency array
 
   // When double-clicking, remove the last line drawn by filtering it out from the lines array using the ID
   const handleDoubleClick = useCallback(() => {
@@ -442,23 +440,22 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
   }, [isDrawing]);
 
   const handlePortClick = (e, componentId, portId, x, y) => {
-    
     e.stopPropagation(); // This stops the event from propagating further
-    console.log("handlePortClick", {
+    console.log("HPC handlePortClick", {
       componentId,
       portId,
-      currentLineRef: currentLineRef.current,
+      currentLineRef,
     });
     //Should return position of port (not adjusted for offset)
     const pixelX = parseInt(e.target.dataset.x, 10);
     const pixelY = parseInt(e.target.dataset.y, 10);
 
-    console.log("currentLineRef", currentLineRef);
+    //console.log("currentLineRef", currentLineRef);
 
     const isLineStarted = currentLineRef.current != null;
     if (!isLineStarted) {
       // Start the line
-      console.log("Start of line");
+      console.log("HPC Start of line");
       setIsDrawing(true);
 
       const newLine = {
@@ -473,15 +470,15 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
       setCurrentLine(newLine);
       currentLineRef.current = newLine; // Keep track of the line in ref
     } else if (isDrawing) {
-      console.log("isDrawing", isDrawing);
-      console.log("End Of Line", {
+      console.log("HPC Line is Ending", {
         componentId,
         portId,
-        currentLineRef: currentLineRef.current,
+        currentLineRef,
+        isDrawing,
       });
 
       if (currentLineRef.current.from.componentId) {
-        console.log("Currnet line component trigger", currentLineRef);
+        console.log("HPC Setting To & From", currentLineRef);
         setComponents((prevComponents) => {
           return prevComponents.map((comp) => {
             if (comp.id === currentLineRef.current.from.componentId) {
@@ -513,9 +510,10 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
           });
         });
       }
-
+      //Code to deal with lines
       //Detect if its touch
       if (e.type.startsWith("touch")) {
+        console.log("HPC Touch Add Labels");
         setCurrentLine((current) => {
           var newState = {
             ...current,
@@ -536,86 +534,97 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
             newState = LabelledState;
           }
 
-          console.trace("End Of Line: newState", newState);
+          console.trace("HPC Touch with Labels: newState", newState);
           currentLineRef.current = newState;
           return newState;
         });
       } else {
-
-    // Check if the line is being connected to a different port
-    if (
-      currentLineRef.current &&
-      (currentLineRef.current.from.componentId !== componentId ||
-        currentLineRef.current.from.portId !== portId)
-    ) {
-        const Segments = {
-          x1: currentLineRef.current.x2,
-          y1: currentLineRef.current.y2,
-          x2: pixelX,
-          y2: pixelY,
-        };
-
-        setCurrentLine((current) => {
-          var newState = {
-            ...current,
+        //Mouse
+        // Check if the line is being connected to a different port
+        console.log("HPC Mouse Add Labels");
+        if (
+          currentLineRef.current &&
+          (currentLineRef.current.from.componentId !== componentId ||
+            currentLineRef.current.from.portId !== portId)
+        ) {
+          console.log("HPC Checked current line connects to different port");
+          const finalSegment = {
+            x1: currentLineRef.current.x2,
+            y1: currentLineRef.current.y2,
             x2: pixelX,
             y2: pixelY,
-            to: { componentId, portId },
-            segments: current.segments
-              ? [...current.segments, Segments]
-              : [Segments],
-            // label: { id: uuidv4(), text: "test", position: labelPosition },
           };
 
-          if (current) {
-            const labelPosition = {
-              x: current.x2 + 20,
-              y: current.y2 + 10,
+          setCurrentLine((current) => {
+            var newState = {
+              ...current,
+              x2: pixelX,
+              y2: pixelY,
+              to: { componentId, portId },
+              segments: current.segments
+                ? [...current.segments, finalSegment]
+                : [finalSegment],
+              // label: { id: uuidv4(), text: "test", position: labelPosition },
             };
-            const LabelledState = {
-              ...newState,
-              label: { id: uuidv4(), text: "", position: labelPosition },
-            };
-            newState = LabelledState;
-          }
 
-          console.trace("End Of Line: newState", newState);
-          currentLineRef.current = newState;
-          return newState;
-        });
-      } else {
-        // If the line is being connected to the same port, ignore the action
-        console.log("Attempting to connect a line to the same port, action ignored.");
-        setCurrentLine(null); // Clear the current line if any
-        currentLineRef.current = null;
-        setIsDrawing(false); // Stop drawing
+            if (current) {
+              const labelPosition = {
+                x: current.x2 + 20,
+                y: current.y2 + 10,
+              };
+              const LabelledState = {
+                ...newState,
+                label: { id: uuidv4(), text: "", position: labelPosition },
+              };
+              newState = LabelledState;
+            }
+
+            console.trace("HPC Mouse with Labels: newState", newState);
+            currentLineRef.current = newState;
+            return newState;
+          });
+        } else {
+          // If the line is being connected to the same port, ignore the action
+          console.log(
+            "Attempting to connect a line to the same port, action ignored."
+          );
+          setCurrentLine(null); // Clear the current line if any
+          currentLineRef.current = null;
+          setIsDrawing(false); // Stop drawing
+        }
       }
-
-
-      }
-
+      console.log("HPC Setting Lines to current");
+      console.log("HPC Lines", lines);
+      console.log("HPC currentLineRef.current", currentLineRef.current);
       setLines((prevLines) => {
+        // Create a new line object based on the current line reference
         const newLine = {
           ...currentLineRef.current,
         };
-        return [...prevLines, newLine];
-      });
-      // In Grid.js, wherever you update the lines
-      setLines((updatedLines) => {
-        onLinesUpdate(updatedLines); // Use the callback passed via props
+
+        // Combine the previous lines with the new line to form the updated lines array
+        const updatedLines = [...prevLines, newLine];
+
+        // Use the callback passed via props to inform the parent component of the updated lines
+        onLinesUpdate(updatedLines);
+
+        // Return the updated lines array to update the state
         return updatedLines;
       });
-      console.log("lines", lines);
+      console.log("HPC Lines array set: ", lines);
+
+      console.log("HPC Clearing line: ", lines);
       //Clear previous line
       setCurrentLine(null);
       currentLineRef.current = null;
       setIsDrawing(false);
-      console.log("END IF STATEMENT setIsDrawing"); //runs this
+      console.log("HPC End"); //runs this
     }
   };
 
   //Line follow finger:
   const addSegmentToLine = (e) => {
+    console.log("Touch Adding segment to line");
     const touch = e.touches[0];
     const clientX = touch.clientX;
     const clientY = touch.clientY;
@@ -627,57 +636,56 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
     // Snap the coordinates to the grid size
     const snappedX = Math.round(relativeX / GridSize) * GridSize;
     const snappedY = Math.round(relativeY / GridSize) * GridSize;
-    try{
-    setCurrentLine((current) => {
-      if (current) {
-        console.log("Touch Current line", current);
-        var newState = { ...current, x2: snappedX, y2: snappedY };
+    try {
+      setCurrentLine((current) => {
+        if (current) {
+          console.log("ASTL Touch Current line", current);
+          var newState = { ...current, x2: snappedX, y2: snappedY };
 
-        // If there's no current line, start a new one
-        if (!current.segments || current.segments.length < 1) {
-          console.log("No current line");
-          newState.segments.push({
-            x1: snappedX,
-            y1: snappedY,
-            x2: snappedX,
-            y2: snappedY,
-          });
-          return {
-            newState,
-            // ... other initial line properties ...
-          };
+          // If there's no current line, start a new one
+          if (!current.segments || current.segments.length < 1) {
+            console.log("ASTL No current line");
+            newState.segments.push({
+              x1: snappedX,
+              y1: snappedY,
+              x2: snappedX,
+              y2: snappedY,
+            });
+            return {
+              newState,
+              // ... other initial line properties ...
+            };
+          }
+
+          // Create a new state object from the current state
+          console.log("ASTL Touch Line if there is currentline", current);
+          // If the new point is the same as the last point, don't add a new segment
+          const lastSegment = newState.segments[newState.segments.length - 1];
+          if (lastSegment.x2 !== snappedX || lastSegment.y2 !== snappedY) {
+            // Add a new segment to the line
+            newState.segments.push({
+              x1: lastSegment.x2,
+              y1: lastSegment.y2,
+              x2: snappedX,
+              y2: snappedY,
+            });
+          }
+
+          // Return the new state
+          return newState;
+        } else {
+          return current;
         }
-
-        // Create a new state object from the current state
-        console.log("Touch Line if there is currentline", current);
-        // If the new point is the same as the last point, don't add a new segment
-        const lastSegment = newState.segments[newState.segments.length - 1];
-        if (lastSegment.x2 !== snappedX || lastSegment.y2 !== snappedY) {
-          // Add a new segment to the line
-          newState.segments.push({
-            x1: lastSegment.x2,
-            y1: lastSegment.y2,
-            x2: snappedX,
-            y2: snappedY,
-          });
-        }
-
-        // Return the new state
-        return newState;
-      } else {
-        return current;
-      }
-    });
-  }
-  catch(err){
-    console.error(err.message)
-  }
+      });
+    } catch (err) {
+      console.error(err.message);
+    }
   };
 
   // Touch Start Handler
   const handleTouchStart = useCallback(
     (e) => {
-      console.log("Touch Start", e);
+      console.log("Touch Start triggered: ", e);
       const touch = e.touches[0];
       const elementUnderFinger = document.elementFromPoint(
         touch.clientX,
@@ -685,7 +693,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
       );
 
       if (elementUnderFinger.classList.contains("port")) {
-        console.log("Touch Start on port");
+        console.log("Touch Started on port");
 
         // Retrieve the componentId and portId from the dataset of the element
         const componentId = elementUnderFinger.dataset.componentId;
@@ -703,9 +711,9 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
   // Touch Move Handler
   const handleTouchMove = useCallback(
     (e) => {
-      console.log("Touch moving at all?");
+      console.log("Touch move triggered");
       if (isDrawing) {
-        console.log("Touch moving add");
+        console.log("Touch Move is drawing");
         // Only update the line if drawing is active
         e.preventDefault(); // Prevent default behavior like scrolling
 
@@ -768,7 +776,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
   // Touch End Handler
   const handleTouchEnd = useCallback(
     (e) => {
-      console.log("Touch End ran");
+      console.log("Touch Handle Touch End ran");
       if (isDrawing) {
         // Only process the touch end if a line is being drawn
         const touch = e.changedTouches[0];
@@ -790,11 +798,14 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
               currentLineRef.current.y1 !== currentLineRef.current.y2);
 
           if (isValidLine) {
+            console.log(
+              "Line is Valid: componentId / portid",
+              componentId,
+              portId
+            );
             //Check if its a valid line:
             const processedLine = processLineSegments(currentLineRef.current);
             setCurrentLine(processedLine);
-
-            console.log("componentId / portid", componentId, portId);
             console.log("Touch End handlePortClick", currentLineRef);
             handlePortClick(
               e,
@@ -830,7 +841,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
     // };
 
     const gridElement = document.querySelector(".grid");
-    console.log("touch device? ", isTouchDevice);
+    console.log("Is touch device? ", isTouchDevice);
     if (isTouchDevice) {
       // Add touch event listeners for touch devices
       document.addEventListener("touchstart", handleTouchStart);
@@ -932,7 +943,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
 
       // Create a new ID using the first letter of the component type and the new count
       const newId = `${item.type.charAt(0).toLowerCase()}${typeCount + 1}`;
-      console.log("Position on drop: ", `${x}`, `${y}`);
+      //console.log("Position on drop: ", `${x}`, `${y}`);
       // Add the new component with the new ID and other properties
       return [
         ...prevComponents,
@@ -974,12 +985,12 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
       }
       return null;
     };
-    console.log("Position GRID: ", `${component.x}`, `${component.y}`);
-    console.log(
-      "Position X/Y: ",
-      `${component.x * GridSize}px`,
-      `${component.y * GridSize - GridSize / 2}px`
-    );
+    // console.log("Position GRID: ", `${component.x}`, `${component.y}`);
+    // console.log(
+    //   "Position X/Y: ",
+    //   `${component.x * GridSize}px`,
+    //   `${component.y * GridSize - GridSize / 2}px`
+    // );
 
     // Determine the unit based on the component type
     let displayValue = component.value;
@@ -1052,32 +1063,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
       </div>
     );
   };
-  // Create 100 cells and render placed components within them
-  //Calc number of cells
-  // const NumCellsWidth = GridWidth/GridSize
-  // const NumCellsHeight = GridHeight/GridSize
 
-  // const TotalCells = NumCellsWidth * NumCellsHeight
-
-  // const gridCells = Array.from({ length: TotalCells }, (_, index) => (
-  //   <GridCell
-  //     key={index}
-  //     onDrop={handleDrop}
-  //     //x={index % 10}
-  //     //y={Math.floor(index / 10)}
-
-  //     x={index % numCellsWidth}
-  //     y={Math.floor(index / numCellsWidth)}
-  //     cellSize={GridSize} // Pass the dynamic cell size
-  //   />
-  // ));
-
-  // Render grid cells
-  // const numCellsHeight = Math.ceil(GridHeight / GridSize); // Calculate the number of cells vertically
-  // Calculate the total number of cells dynamically
-
-  console.log("Position End numCellsHeight ", numCellsHeight);
-  console.log("Position EndnumCellsWidth ", numCellsWidth);
   const totalCells = numCellsWidth * numCellsHeight;
 
   // Render grid cells
@@ -1089,7 +1075,6 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
       y={Math.floor(index / numCellsWidth)}
       numCols={numCellsWidth}
       numRows={numCellsHeight}
-      // cellSize={GridSize} // Pass the dynamic cell size
     />
   ));
 
@@ -1098,7 +1083,6 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
   // console.log("numCellsWidth", numCellsWidth);
   // console.log("numCellsHeight", numCellsHeight);
   // console.log("GridSize", GridSize);
-
 
   return (
     <GridSizeContext.Provider value={GridSize}>
@@ -1109,10 +1093,6 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
           display: "grid",
           gridTemplateColumns: `repeat(${numCellsWidth}, 1fr)`,
           gridTemplateRows: `repeat(${numCellsHeight}, 1fr)`, // Updated to maintain aspect ratio
-          //gridTemplateColumns: "repeat(10, 1fr)",
-          //gridTemplateRows: "repeat(10, 1fr)",
-          //width: `${GridWidth}px`,
-          //height: `${GridHeight}px`,
           width: "100%",
           height: "100%",
           position: "relative",
@@ -1167,15 +1147,15 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
                   ))}
                   {/* Render label for the line */}
                   {line.label && line.label.text && (
-                      <text
-                        x={line.label.position.x +5}
-                        y={line.label.position.y + 5}
-                        fill="#1FB6FF"
-                        textAnchor="middle"
-                        dy=".3em" // Adjust for vertical centering
-                      >
-                        {line.label.text}
-                      </text>
+                    <text
+                      x={line.label.position.x + 5}
+                      y={line.label.position.y + 5}
+                      fill="#1FB6FF"
+                      textAnchor="middle"
+                      dy=".3em" // Adjust for vertical centering
+                    >
+                      {line.label.text}
+                    </text>
                   )}
                 </>
               )}
