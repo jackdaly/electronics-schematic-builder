@@ -9,25 +9,27 @@ const WelcomePage = ({ onGetStarted }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch('https://hooks.zapier.com/hooks/catch/17684077/3ga5ynn/', {
+      const response = await fetch('../api/send-email', { // Make sure this matches your Vercel serverless function endpoint
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: email }), // Ensure that 'email' is defined in your component's state
       });
+  
       if (response.ok) {
-        console.log('Email sent to Zapier');
-        // Here you can navigate to another page or show a success message
+        const data = await response.json();
+        console.log('Email sent:', data.message);
+        // Navigate to another page or show success message
       } else {
-        console.error('Failed to send email to Zapier');
+        console.error('Failed to send email:', response.statusText);
+        // Handle errors, maybe set an error message in state and display to user
       }
     } catch (error) {
-      console.error('Error sending email to Zapier', error);
+      console.error('Error sending email:', error);
+      // Handle errors, maybe set an error message in state and display to user
     }
-
-
-    navigate('/schematic-question'); // Navigate to the schematic question page
+    //navigate('/schematic-question'); // Navigate to the schematic question page
   };
 
   return (
