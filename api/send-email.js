@@ -1,6 +1,7 @@
-import fetch from 'node-fetch'; // Ensure you have 'node-fetch' installed if you're using Node < 18
+// Using top-level await and dynamic import for node-fetch
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
-const ZAPIER_WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/17684077/3ga5ynn/'; // Replace with your Zapier webhook URL
+const ZAPIER_WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/17684077/3ga5ynn/';
 
 const sendEmailToZapier = async (email) => {
   const response = await fetch(ZAPIER_WEBHOOK_URL, {
@@ -15,27 +16,28 @@ const sendEmailToZapier = async (email) => {
     const data = await response.json();
     return data;
   } else {
+    // It's good practice to log the response for debugging purposes
+    const errorBody = await response.text();
+    console.error('Error response from Zapier:', errorBody);
     throw new Error('Failed to send email to Zapier');
   }
 };
 
-const sendEmail = async (req, res) => {
+export default async function sendEmail(req, res) {
   if (req.method === 'POST') {
     const { email } = req.body;
 
     try {
       const zapierResponse = await sendEmailToZapier(email);
       // Optionally process zapierResponse if needed
-      return res.status(200).send({ message: 'Email sent successfully to Zapier' });
+      return res.status(200).json({ message: 'Email sent successfully to Zapier', zapierResponse });
     } catch (error) {
       console.error('Error sending email to Zapier:', error);
-      return res.status(500).send({ message: 'Failed to send email to Zapier' });
+      return res.status(500).json({ message: 'Failed to send email to Zapier', error: error.message });
     }
+  } else {
+    // Handle any other HTTP methods
+    res.setHeader('Allow', ['POST']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-
-  // Handle any other HTTP methods
-  res.setHeader('Allow', ['POST']);
-  res.status(405).end(`Method ${req.method} Not Allowed`);
 };
-
-export default sendEmail;
