@@ -178,10 +178,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
         currentLine,
         currentLineRef,
       });
-    },
-    [
-      /* dependencies that when changed cause re-render */
-    ]
+    }
   );
 
   const currentLineRef = useRef(null);
@@ -310,6 +307,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
   //-----------------------
 
   useEffect(() => {
+    console.log("Synchronize ref with state",currentLine)
     // Synchronize ref with state
     currentLineRef.current = currentLine;
   }, [currentLine]);
@@ -399,10 +397,10 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
             },
           ]);
           // In Grid.js, wherever you update the lines
-          setLines((updatedLines) => {
-            onLinesUpdate(updatedLines); // Use the callback passed via props
-            return updatedLines;
-          });
+          // setLines((updatedLines) => {
+          //   onLinesUpdate(updatedLines); // Use the callback passed via props
+          //   return updatedLines;
+          // });
 
           // Get the last segment's endpoint
           const lastSegment =
@@ -427,7 +425,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
         }
       }
     },
-    [lines, onLinesUpdate]
+    [lines] //, onLinesUpdate]
   ); // Include all used state and props in dependency array
 
   // When double-clicking, remove the last line drawn by filtering it out from the lines array using the ID
@@ -468,10 +466,18 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
         y1: pixelY,
         x2: pixelX,
         y2: pixelY,
-        segments: [], // Initialize segments array
+        segments: [
+          {
+            x1: pixelX,
+            y1: pixelY,
+            x2: pixelX,
+            y2: pixelY,
+          },
+        ], // Initialize segments array
       };
       setCurrentLine(newLine);
       currentLineRef.current = newLine; // Keep track of the line in ref
+      console.log("HPC Start of line: newLine", newLine);
     } else if (isDrawing) {
       console.log("HPC Line is Ending", {
         componentId,
@@ -557,6 +563,37 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
             x2: pixelX,
             y2: pixelY,
           };
+          // /////
+
+          // var newState = {
+          //   ...currentLineRef.current,
+          //   x2: pixelX,
+          //   y2: pixelY,
+          //   to: { componentId, portId },
+          //   segments: currentLineRef.current.segments
+          //     ? [...currentLineRef.current.segments, finalSegment]
+          //     : [finalSegment],
+          //   // label: { id: uuidv4(), text: "test", position: labelPosition },
+          // };
+
+          // if (currentLineRef.current) {
+          //   const labelPosition = {
+          //     x: currentLineRef.current.x2 + 20,
+          //     y: currentLineRef.current.y2 + 10,
+          //   };
+          //   const LabelledState = {
+          //     ...newState,
+          //     label: { id: uuidv4(), text: "", position: labelPosition },
+          //   };
+          //   newState = LabelledState;
+          // }
+
+          // console.trace("HPC Mouse with Labels: newState", newState);
+          // currentLineRef.current = newState;
+
+          // setCurrentLine(newState);
+
+          // /////
 
           setCurrentLine((current) => {
             var newState = {
@@ -1142,11 +1179,10 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
           {/* Render stored lines with labels */}
           {lines.map((line, index) => {
             console.log(`Rendering line ${index}:`, line);
-              if (!line.segments) {
-                console.error('Line without segments encountered', line);
-                return null; // Skip rendering this line
-              }
-            
+            if (!line.segments) {
+              console.error("Line without segments encountered", line);
+              return null; // Skip rendering this line
+            }
             return (
               <React.Fragment key={index}>
                 {Array.isArray(line.segments) && line.segments.length > 0 && (
