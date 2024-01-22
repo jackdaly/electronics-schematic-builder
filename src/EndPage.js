@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./WelcomePage.css"; // Make sure to create a corresponding CSS file
 
-const EndPage = ({ onGetStarted }) => {
-  const [email, setEmail] = useState("");
+const EndPage = () => {
   const navigate = useNavigate(); // Hook to navigate
 
   const handleClick = (event) => {
