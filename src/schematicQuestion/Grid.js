@@ -123,6 +123,33 @@ const Port = ({ componentId, portId, x, y, degree, devMode }) => {
   );
 };
 
+const PortCircle = ({ portId, x, y, degree, devMode }) => {
+  const GridSize = useGridSize(); // Get the current GridSize from the context
+  const portSize = 8;
+
+  return (
+    <svg
+      className="PortCircle"
+      style={{
+        position: "absolute",
+        pointerEvents: "none", // To not interfere with port clicks
+        width: `${portSize}px`,
+        height: `${portSize}px`,
+        top: `${GridSize / 2 - portSize / 2}px`,
+        left:
+          portId === "input"
+            ? `${-(portSize / 2)}px`
+            : `${GridSize - portSize / 2}px`,
+        transform: "rotate(" + degree + "deg)",
+        position: "absolute",
+        zIndex:1
+      }}
+    >
+      <circle cx={`${portSize/2}px`} cy={`${portSize/2}px`} r={`${portSize/2}px`} fill="#1A9BDB" />
+    </svg>
+  );
+};
+
 const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
   //const [components, setComponents] = useState([]);
   const [lines, setLines] = useState([]); // Store lines
@@ -1039,35 +1066,150 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
   };
 
   const handleDrop = (item, x, y) => {
+    console.log("Running handle Drop")
     setCurrentLine(null);
     currentLineRef.current = null;
     setIsDrawing(false);
-
+  
     setComponents((prevComponents) => {
-      // Count how many components of the same type already exist
-      const typeCount = prevComponents.filter(
-        (comp) => comp.type === item.type
-      ).length;
-
-      // Create a new ID using the first letter of the component type and the new count
+      const typeCount = prevComponents.filter((comp) => comp.type === item.type).length;
       const newId = `${item.type.charAt(0).toLowerCase()}${typeCount + 1}`;
-      //console.log("Position on drop: ", `${x}`, `${y}`);
-      // Add the new component with the new ID and other properties
+      
+      const newComponent = {
+        ...item,
+        id: newId,
+        x,
+        y,
+        rotation: 0,
+        value: item.value,
+        numberOfPorts: item.numberOfPorts,
+        connections: [],
+      };
+
+      
+      const newComponentId = newComponent.id;
+  
+      // Check if there is a component directly to the left of the new component
+      const adjacentComponentLeft = prevComponents.find((comp) => 
+        comp.x === newComponent.x - 1 && comp.y === newComponent.y
+      );
+
+  
+      if (adjacentComponentLeft) {
+        console.log("Component to left")
+        const adjacentComponentLeftId = adjacentComponentLeft.id;
+        // Connect the output port of the adjacent component to the input port of the new component
+        newComponent.connections.push({
+          portId: 'input',
+          connectedToComponentId: adjacentComponentLeft.id,
+          connectedToPortId: 'output',
+        });
+  
+        // Also update the adjacent component's connections to reflect this new connection
+        adjacentComponentLeft.connections.push({
+          portId: 'output',
+          connectedToComponentId: newComponent.id,
+          connectedToPortId: 'input',
+        });
+
+        const labelPosition = {
+          x: newComponent.x * 50,
+          y: newComponent.y * 50 + 10,
+        };
+
+        const newLine = {
+          to: { componentId: adjacentComponentLeftId, portId:'input' },
+          from: { componentId: newComponentId, portId:'output' },
+          id: uuidv4(),
+          x1: adjacentComponentLeft.x ,
+          y1: adjacentComponentLeft.y,
+          x2: newComponent.x ,
+          y2: newComponent.y,
+          segments: [
+            {
+              x1: adjacentComponentLeft.x,
+              y1: adjacentComponentLeft.y,
+              x2: newComponent.y,
+              y2: newComponent.y,
+            },
+          ],
+          label: { id: uuidv4(), text: "", position: labelPosition }
+        };
+        
+        setLines((prevLines) => [...prevLines, newLine]);
+
+        setLines((updatedLines) => {
+          onLinesUpdate(updatedLines); // Use the callback passed via props
+          return updatedLines;
+        });
+      }
+      
+      // Check if there is a component directly to the left of the new component
+      const adjacentComponentRight = prevComponents.find((comp) => 
+        comp.x === newComponent.x + 1 && comp.y === newComponent.y
+      );
+
+  
+      if (adjacentComponentRight) {
+        console.log("Component to Right")
+        const adjacentComponentRightId = adjacentComponentRight.id;
+        // Connect the output port of the adjacent component to the input port of the new component
+        newComponent.connections.push({
+          portId: 'output',
+          connectedToComponentId: adjacentComponentRight.id,
+          connectedToPortId: 'input',
+        });
+  
+        // Also update the adjacent component's connections to reflect this new connection
+        adjacentComponentRight.connections.push({
+          portId: 'input',
+          connectedToComponentId: newComponent.id,
+          connectedToPortId: 'output',
+        });
+
+        //Create new connection
+
+        const labelPosition = {
+          x: newComponent.x * 50 + 50,
+          y: newComponent.y * 50 + 10,
+        };
+
+
+        const newLine = {
+          from: { componentId: adjacentComponentRightId, portId: 'input' },
+          to: { componentId: newComponentId, portId:'output' },
+          id: uuidv4(),
+          x1: adjacentComponentRight.x ,
+          y1: adjacentComponentRight.y,
+          x2: newComponent.x ,
+          y2: newComponent.y,
+          segments: [
+            {
+              x1: adjacentComponentRight.x,
+              y1: adjacentComponentRight.y,
+              x2: newComponent.y,
+              y2: newComponent.y,
+            },
+          ],
+          label: { id: uuidv4(), text: "", position: labelPosition }
+        };
+
+        setLines((prevLines) => [...prevLines, newLine]);
+
+        setLines((updatedLines) => {
+          onLinesUpdate(updatedLines); // Use the callback passed via props
+          return updatedLines;
+        });
+      }
+
+      
       return [
         ...prevComponents,
-        {
-          ...item,
-          id: newId,
-          x,
-          y,
-          rotation: 0,
-          value: item.value,
-          numberOfPorts: item.numberOfPorts,
-          connections: [],
-        },
+        newComponent,
       ];
     });
   };
+  
 
   const renderComponent = (component, index) => {
     const imageUrl = `/assets/${component.type}.svg`; // Path to your SVG assets
@@ -1125,24 +1267,43 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
           }}
           //onDoubleClick={() => rotateComponent(component.id)}
         />
-        <Port
-          componentId={component.id}
-          portId="input"
-          x={component.x}
-          y={component.y}
-          degree={component.rotation || 0}
-          devMode={devMode}
-        />
-        {/* Conditionally render the output port if numberOfPorts is 2 */}
-        {component.numberOfPorts === 2 && (
+        <>
           <Port
             componentId={component.id}
-            portId="output"
+            portId="input"
             x={component.x}
             y={component.y}
             degree={component.rotation || 0}
             devMode={devMode}
           />
+          <PortCircle
+            portId="input"
+            x={component.x}
+            y={component.y}
+            degree={component.rotation || 0}
+            devMode={devMode}
+          />
+        </>
+
+        {/* Conditionally render the output port if numberOfPorts is 2 */}
+        {component.numberOfPorts === 2 && (
+          <>
+            <Port
+              componentId={component.id}
+              portId="output"
+              x={component.x}
+              y={component.y}
+              degree={component.rotation || 0}
+              devMode={devMode}
+            />
+            <PortCircle
+              portId="output"
+              x={component.x}
+              y={component.y}
+              degree={component.rotation || 0}
+              devMode={devMode}
+            />
+          </>
         )}
 
         {/* Render component value with unit */}
