@@ -689,43 +689,25 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
       setCurrentLine((current) => {
         if (current) {
           console.log("ASTL Touch Current line", current);
-          var newState = { ...current, x2: snappedX, y2: snappedY };
-          console.log("ASTL Touch newState", newState);
-          // If there's no current line, start a new one
-          if (!current.segments || current.segments.length < 1) {
-            console.log("ASTL No current line");
-            newState.segments.push({
-              x1: snappedX,
-              y1: snappedY,
-              x2: snappedX,
-              y2: snappedY,
-            });
-            return {
-              newState,
-              // ... other initial line properties ...
-            };
-          }
-
-          // Create a new state object from the current state
-          console.log("ASTL Touch Line if there is currentline", current);
-          // If the new point is the same as the last point, don't add a new segment
-          const lastSegment = newState.segments[newState.segments.length - 1];
-          if (lastSegment.x2 !== snappedX || lastSegment.y2 !== snappedY) {
+          // Ensure segments is an array before pushing to it
+          const segments = current.segments || [];
+          const lastSegment = segments[segments.length - 1];
+          if (!lastSegment || lastSegment.x2 !== snappedX || lastSegment.y2 !== snappedY) {
             // Add a new segment to the line
-            newState.segments.push({
-              x1: lastSegment.x2,
-              y1: lastSegment.y2,
+            segments.push({
+              x1: lastSegment ? lastSegment.x2 : snappedX,
+              y1: lastSegment ? lastSegment.y2 : snappedY,
               x2: snappedX,
               y2: snappedY,
             });
           }
-
-          // Return the new state
-          return newState;
-        } else {
-          return current;
+          // Return the updated state, including the possibly newly-initialized segments array
+          return { ...current, segments, x2: snappedX, y2: snappedY };
         }
+        // If there's no current line, just return current to avoid changing state
+        return current;
       });
+      
     } catch (err) {
       console.error(err.message);
     }
