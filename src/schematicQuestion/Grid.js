@@ -430,9 +430,11 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
 
   // When double-clicking, remove the last line drawn by filtering it out from the lines array using the ID
   const handleDoubleClick = useCallback(() => {
-    if (isDrawing) {
+    console.log("handleDoubleClick")
+    if (isDrawing && currentLine !== null) {
+      console.log("handleDoubleClick currentLineRef",currentLine)
       setLines((prevLines) =>
-        prevLines.filter((line) => line.id !== currentLineRef.current.id)
+        prevLines.filter((line) => line.id !== currentLine.id)
       );
       setCurrentLine(null); // Clear the current line
       currentLineRef.current = null; // Clear the reference
@@ -688,7 +690,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
         if (current) {
           console.log("ASTL Touch Current line", current);
           var newState = { ...current, x2: snappedX, y2: snappedY };
-
+          console.log("ASTL Touch newState", newState);
           // If there's no current line, start a new one
           if (!current.segments || current.segments.length < 1) {
             console.log("ASTL No current line");
@@ -875,6 +877,28 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
     [handlePortClick]
   );
 
+  let clickTimeout = null;
+  let clickCount = 0;
+
+  const handleClick = (e) => {
+    clickCount += 1;
+
+    if (clickTimeout !== null) {
+      clearTimeout(clickTimeout);
+    }
+
+    clickTimeout = setTimeout(() => {
+      if (clickCount === 1) {
+        console.log('Single click action triggered');
+        handleGridClick(e);
+      } else if (clickCount > 1) {
+        console.log('Double click action triggered');
+        handleDoubleClick(e);
+      }
+      clickCount = 0;
+    }, 300); // 300 ms is typically a good delay, but you might need to adjust this.
+  };
+
   // Set up event listeners in useEffect
   useEffect(() => {
     // Check if the device supports touch events
@@ -902,8 +926,9 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
       }
     } else {
       // Add mouse event listeners for non-touch devices
-      gridElement.addEventListener("click", handleGridClick);
-      gridElement.addEventListener("dblclick", handleDoubleClick);
+      gridElement.addEventListener("click", handleClick);
+      // gridElement.addEventListener("click", handleGridClick);
+      // gridElement.addEventListener("dblclick", handleDoubleClick);
       if (isDrawing) {
         document.addEventListener("mousemove", updateLineToCursor);
       } else {
@@ -919,8 +944,9 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
         document.removeEventListener("touchend", handleTouchEnd);
       } else {
         document.removeEventListener("mousemove", updateLineToCursor);
-        gridElement.removeEventListener("click", handleGridClick);
-        gridElement.removeEventListener("dblclick", handleDoubleClick);
+        gridElement.removeEventListener("click", handleClick);
+        // gridElement.removeEventListener("click", handleGridClick);
+        // gridElement.removeEventListener("dblclick", handleDoubleClick);
       }
     };
   }, [
