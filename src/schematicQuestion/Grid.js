@@ -97,7 +97,7 @@ const Port = ({ componentId, portId, x, y, degree, devMode }) => {
   const portx = x * GridSize + (portId === "input" ? 0 : GridSize);
   const porty = y * GridSize;
 
-  const portSize = 40;
+  const portSize = 50;
 
   return (
     <div

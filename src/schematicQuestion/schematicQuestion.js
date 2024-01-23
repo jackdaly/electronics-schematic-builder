@@ -72,6 +72,12 @@ const SchematicQuestion = () => {
 
   const handleTestCircuit = (components) => {
     console.log(components.length);
+    // Function to check if all ports are connected
+    const areAllPortsConnected = () => {
+      return components.every(
+        (component) => component.connections.length === component.numberOfPorts
+      );
+    };
 
     // Test circuit logic will go here.
     const traceCircuit = (components) => {
@@ -202,15 +208,22 @@ const SchematicQuestion = () => {
         mappedConnections,
       };
     };
+    // Check if all ports are connected before proceeding
+    if (!areAllPortsConnected()) {
+      alert(
+        "Some ports are not connected. Please check the circuit and try again."
+      );
+      return;
+    }
 
     const circuitData = traceCircuit(components);
     console.log("Traced Circuit Data:", circuitData);
     console.log("labelledLines FILTER BEFORE", labelledLines);
     function filterLinesWithTo(lines) {
-      return lines.filter(line => line.to);
+      return lines.filter((line) => line.to);
     }
     var linesWithTo = filterLinesWithTo(labelledLines);
-    setLabelledLines(linesWithTo)
+    setLabelledLines(linesWithTo);
     console.log("linesWithTo FILTER AFTER", linesWithTo);
     console.log("labelledLines FILTER AFTER", labelledLines);
 
@@ -227,9 +240,9 @@ const SchematicQuestion = () => {
       console.log("referenceSolution", referenceSolution);
       console.log("outputDict", outputDict);
       const result = {};
-      
+
       let allCorrect = true; // Flag to track if all answers are correct
-      
+
       // Check the output against the reference solution
       for (const [key, refValue] of Object.entries(referenceSolution)) {
         const outputValue = outputDict[key];
@@ -249,20 +262,18 @@ const SchematicQuestion = () => {
           // If the key is missing in the output, mark as incorrect
           result[key] = {
             expected: refValue,
-            actual: 'N/A',
+            actual: "N/A",
             correct: false,
           };
           allCorrect = false;
         }
       }
-      
+
       // Update the answer state based on the overall correctness
       setAnswerState(allCorrect ? "correct" : "incorrect");
       console.log("Result of comparison:", result);
-      
 
-      console.log("result",result);
-
+      console.log("result", result);
     } else {
       console.log("No components");
     }

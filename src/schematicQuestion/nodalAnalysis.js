@@ -503,10 +503,12 @@ function generate_node_list() {
   for (var i = 0; i < nodes_list.length; i++) {
     nodes_list[i][0] = i;
   }
-  console.log('nodes_list Before',nodes_list)
+  console.log("nodes_list Before", nodes_list);
 
   // Find the index of the node group that contains 'b1_input'
-  var groundNodeIndex = nodes_list.findIndex(group => group[1].includes('b1_input'));
+  var groundNodeIndex = nodes_list.findIndex((group) =>
+    group[1].includes("b1_input")
+  );
 
   // If 'b1_input' is found in the nodes_list
   if (groundNodeIndex !== -1) {
@@ -520,7 +522,7 @@ function generate_node_list() {
     nodes_list[i][0] = i;
   }
 
-  console.log('nodes_list After',nodes_list)
+  console.log("nodes_list After", nodes_list);
   return nodes_list;
 }
 
@@ -550,9 +552,10 @@ function nodeGenerate(circuit, connection_list_Function) {
   // Pushing each elements to the list as a class
 
   circuit.forEach((ele) => {
-    console.log('Component loop: ',ele)
-    console.log('Component Type: ',ele["type"])
-    if (ele["type"] == "resistor") { //changed from Resistor
+    console.log("Component loop: ", ele);
+    console.log("Component Type: ", ele["type"]);
+    if (ele["type"] == "resistor") {
+      //changed from Resistor
       resistor_list.push(
         new resistor(
           ele["id"],
@@ -594,8 +597,9 @@ function nodeGenerate(circuit, connection_list_Function) {
       if (raw_nodes_list.includes(ele.ports[1] == false)) {
         raw_nodes_list.push(ele.ports[1]);
       }
-    } else if (ele["type"] == "battery") { //change from VoltageSource
-        console.log('Battery Type: ',ele["type"])
+    } else if (ele["type"] == "battery") {
+      //change from VoltageSource
+      console.log("Battery Type: ", ele["type"]);
       volt_src_list.push(
         new volt_src(
           ele["id"],
@@ -799,15 +803,13 @@ function nodeGenerate(circuit, connection_list_Function) {
   });
   console.log("connection_list", connection_list);
 
-  console.log("Component List ", resistor_list,curr_src_list,volt_src_list);
+  console.log("Component List ", resistor_list, curr_src_list, volt_src_list);
 
   //Generate list of nodes
   nodes_list = generate_node_list();
   console.log("Generate node list ", nodes_list);
 
-
-
-  console.log("Component List ", resistor_list,curr_src_list,volt_src_list);
+  console.log("Component List ", resistor_list, curr_src_list, volt_src_list);
   var to_change_list = [];
   for (var i = 0; i < connection_list.length; i++) {
     try {
@@ -1240,7 +1242,7 @@ function nodeGenerate(circuit, connection_list_Function) {
   //   displayJSON(app.view);
 }
 
-export const simulate = (circuitData, mappedConnections,lines) => {
+export const simulate = (circuitData, mappedConnections, lines) => {
   console.log("new simulate -------------------------------", circuitData);
   // functionining the classes for the connection, resistor, current source, voltage source, controlled voltage and controlled current source
   var circuit = circuitData;
@@ -1758,132 +1760,161 @@ export const simulate = (circuitData, mappedConnections,lines) => {
   }
   let cond_matrix_inv;
   console.log("cond_matrix", cond_matrix);
+
+  let outputDict = {};
+
+try {
   cond_matrix_inv = math.inv(cond_matrix);
+} catch (error) {
+    console.error("Error in cond_matrix: ", error);
+
+    // Set outputDict to zero for all nodes
+    for (let i = 0; i < var_list.length; i++) {
+        outputDict[var_list[i]] = null;
+
+        // For logging
+        let tempVar = var_list[i] + " = 0";
+        console.log(tempVar);
+    }
+    return [outputDict, nodes_list];
+}
+
+
+
+
   var output_matrix = math.multiply(cond_matrix_inv, curr_matrix);
 
-//   // Display in popup
-//   var output = document.getElementById("output");
-//   output.innerHTML = "";
-//   var h2 = document.createElement("h2");
-//   h2.setAttribute("style", "padding-bottom: 30px");
-//   h2.innerHTML = "Output: ";
-//   output.appendChild(h2);
-//   for (var i = 0; i < var_list.length; i++) {
-//     if (var_list[i][0] == "V") {
-//       var h3 = document.createElement("h3");
-//       h3.innerHTML =
-//         var_list[i] + " = " + output_matrix[i][0].toFixed(2) + " V ";
-//       output.appendChild(h3);
-//     }
+  //   // Display in popup
+  //   var output = document.getElementById("output");
+  //   output.innerHTML = "";
+  //   var h2 = document.createElement("h2");
+  //   h2.setAttribute("style", "padding-bottom: 30px");
+  //   h2.innerHTML = "Output: ";
+  //   output.appendChild(h2);
+  //   for (var i = 0; i < var_list.length; i++) {
+  //     if (var_list[i][0] == "V") {
+  //       var h3 = document.createElement("h3");
+  //       h3.innerHTML =
+  //         var_list[i] + " = " + output_matrix[i][0].toFixed(2) + " V ";
+  //       output.appendChild(h3);
+  //     }
 
-//     if (var_list[i][0] == "I") {
-//       var h3 = document.createElement("h3");
-//       h3.innerHTML =
-//         var_list[i] + " = " + output_matrix[i][0].toFixed(2) + " A ";
-//       output.appendChild(h3);
-//     }
-//   }
+  //     if (var_list[i][0] == "I") {
+  //       var h3 = document.createElement("h3");
+  //       h3.innerHTML =
+  //         var_list[i] + " = " + output_matrix[i][0].toFixed(2) + " A ";
+  //       output.appendChild(h3);
+  //     }
+  //   }
 
-  console.log("Results")
-  const output = []
+  console.log("Results");
+  const output = [];
   for (var i = 0; i < var_list.length; i++) {
     if (var_list[i][0] == "V") {
-        var TempVar = var_list[i] + " = " + output_matrix[i][0].toFixed(2) + " V "
-        console.log(TempVar)
+      var TempVar =
+        var_list[i] + " = " + output_matrix[i][0].toFixed(2) + " V ";
+      console.log(TempVar);
       output.push(TempVar);
     }
 
     if (var_list[i][0] == "I") {
-      var TempVar2 = var_list[i] + " = " + output_matrix[i][0].toFixed(2) + " A "
-      console.log(TempVar2)
+      var TempVar2 =
+        var_list[i] + " = " + output_matrix[i][0].toFixed(2) + " A ";
+      console.log(TempVar2);
       output.push(TempVar2);
     }
   }
 
-  const outputDict = {};
+  
 
-for (var i = 0; i < var_list.length; i++) {
+  for (var i = 0; i < var_list.length; i++) {
     // Determine if the variable is voltage (V) or current (I) and format accordingly
-    let value = output_matrix[i][0].toFixed(2) * -1;
+    let value = Math.abs(output_matrix[i][0].toFixed(2)); //making it so always positive number
     let unit = var_list[i][0] == "V" ? " V" : " A";
 
     // Create a key-value pair in the dictionary
-    outputDict[var_list[i]] = value
+    outputDict[var_list[i]] = value;
 
     // For logging purposes, create a string representation and print it
     let TempVar = var_list[i] + " = " + value + unit;
     console.log(TempVar);
-}
+  }
 
-console.log('outputDict',outputDict); // Print the entire dictionary
+  console.log("outputDict", outputDict); // Print the entire dictionary
 
-console.log('lines',lines); // Print the entire dictionary
+  console.log("lines", lines); // Print the entire dictionary
 
-// const updateLineLabels = (lines, var_list, nodes_list, output_matrix) => {
-//   lines.forEach(line => {
-//     if (line.from && line.to) {
-      
-      // const fromNodeNum = return_node_num_from_port_id(`${line.from.componentId}_${line.from.portId}`, nodes_list);
-      // const toNodeNum = return_node_num_from_port_id(`${line.to.componentId}_${line.to.portId}`, nodes_list);
+  // const updateLineLabels = (lines, var_list, nodes_list, output_matrix) => {
+  //   lines.forEach(line => {
+  //     if (line.from && line.to) {
 
-//       const fromNodeIndex = var_list.findIndex(v => v.includes("V_" + (fromNodeNum + 1)));
-//       const toNodeIndex = var_list.findIndex(v => v.includes("V_" + (toNodeNum + 1)));
+  // const fromNodeNum = return_node_num_from_port_id(`${line.from.componentId}_${line.from.portId}`, nodes_list);
+  // const toNodeNum = return_node_num_from_port_id(`${line.to.componentId}_${line.to.portId}`, nodes_list);
 
-//       const fromVoltage = fromNodeIndex !== -1 ? output_matrix[fromNodeIndex][0].toFixed(2) : null;
-//       const toVoltage = toNodeIndex !== -1 ? output_matrix[toNodeIndex][0].toFixed(2) : null;
+  //       const fromNodeIndex = var_list.findIndex(v => v.includes("V_" + (fromNodeNum + 1)));
+  //       const toNodeIndex = var_list.findIndex(v => v.includes("V_" + (toNodeNum + 1)));
 
-//       line.label = {
-//         ...line.label, // Retain the existing properties of the label, especially the position
-//         text: `N${fromNodeNum}: ${fromVoltage}V` //, Node ${toNodeNum}: ${toVoltage}V
-//       };
-//     }
-//   });
-// };
+  //       const fromVoltage = fromNodeIndex !== -1 ? output_matrix[fromNodeIndex][0].toFixed(2) : null;
+  //       const toVoltage = toNodeIndex !== -1 ? output_matrix[toNodeIndex][0].toFixed(2) : null;
 
-const updateLineLabels = (lines, outputDict, nodes_list) => {
-  lines.forEach(line => {
-    // Check if the line connects to b1_input, if so, set the voltage to 0V.
-    if (line.to.componentId === 'b1' && line.to.portId === 'input' || line.from.componentId === 'b1' && line.from.portId === 'input') {
-      line.label.text = "0V";
-    } else {
-      //Pick a port
-      // Retrieve the node numbers using a helper function that matches the port IDs to the node list.
-      const fromNodeNum = return_node_num_from_port_id(`${line.from.componentId}_${line.from.portId}`, nodes_list);
-      // const toNodeNum = return_node_num_from_port_id(`${line.to.componentId}_${line.to.portId}`, nodes_list);
+  //       line.label = {
+  //         ...line.label, // Retain the existing properties of the label, especially the position
+  //         text: `N${fromNodeNum}: ${fromVoltage}V` //, Node ${toNodeNum}: ${toVoltage}V
+  //       };
+  //     }
+  //   });
+  // };
 
-      //Lets retreive voltage
-      const fromVoltage = outputDict[`V_${fromNodeNum}`];
+  const updateLineLabels = (lines, outputDict, nodes_list) => {
+    lines.forEach((line) => {
+      // Check if the line connects to b1_input, if so, set the voltage to 0V.
+      if (
+        (line.to.componentId === "b1" && line.to.portId === "input") ||
+        (line.from.componentId === "b1" && line.from.portId === "input")
+      ) {
+        line.label.text = "0V";
+      } else {
+        //Pick a port
+        // Retrieve the node numbers using a helper function that matches the port IDs to the node list.
+        const fromNodeNum = return_node_num_from_port_id(
+          `${line.from.componentId}_${line.from.portId}`,
+          nodes_list
+        );
+        // const toNodeNum = return_node_num_from_port_id(`${line.to.componentId}_${line.to.portId}`, nodes_list);
 
-      console.log('fromNodeNum,fromVoltage',fromNodeNum,fromVoltage)
+        //Lets retreive voltage
+        const fromVoltage = outputDict[`V_${fromNodeNum}`];
 
-      // Retrieve the voltage values using a helper function that matches the node numbers to the var list.
-      // const fromVoltage = getVoltageFromVarList(fromNodeNum, var_list);
-      // const toVoltage = getVoltageFromVarList(toNodeNum, var_list);
+        console.log("fromNodeNum,fromVoltage", fromNodeNum, fromVoltage);
 
-      // Update the label text with the voltage values.
-      line.label.text = `N ${fromNodeNum}: ${fromVoltage}V`;
-    }
-  });
-};
+        // Retrieve the voltage values using a helper function that matches the node numbers to the var list.
+        // const fromVoltage = getVoltageFromVarList(fromNodeNum, var_list);
+        // const toVoltage = getVoltageFromVarList(toNodeNum, var_list);
 
-  console.log(lines)
-  console.log('nodes_list',nodes_list)
+        // Update the label text with the voltage values.
+        line.label.text = `N ${fromNodeNum}: ${fromVoltage}V`;
+      }
+    });
+  };
 
-  console.log('output_matrix',output_matrix)
-  console.log('var_list',var_list)
+  console.log(lines);
+  console.log("nodes_list", nodes_list);
 
-  console.log('Before Lines List ',lines)
+  console.log("output_matrix", output_matrix);
+  console.log("var_list", var_list);
+
+  console.log("Before Lines List ", lines);
   updateLineLabels(lines, outputDict, nodes_list);
-  console.log('Update node labels',lines)
+  console.log("Update node labels", lines);
 
-//   var img = document.getElementById("preview");
-//   var button2 = document.createElement("a");
-//   button2.setAttribute("class", "btn btn-primary btn-modal btn-lg");
-//   button2.setAttribute("style", "left: 60%");
-//   button2.setAttribute("href", img.src);
-//   button2.setAttribute("download", "diagram.png");
-//   button2.innerHTML = "Save image as PNG";
-//   output.appendChild(button2);
+  //   var img = document.getElementById("preview");
+  //   var button2 = document.createElement("a");
+  //   button2.setAttribute("class", "btn btn-primary btn-modal btn-lg");
+  //   button2.setAttribute("style", "left: 60%");
+  //   button2.setAttribute("href", img.src);
+  //   button2.setAttribute("download", "diagram.png");
+  //   button2.innerHTML = "Save image as PNG";
+  //   output.appendChild(button2);
   //   $(".mask").addClass("active");
 
   //   function update_cont_srcs() {
