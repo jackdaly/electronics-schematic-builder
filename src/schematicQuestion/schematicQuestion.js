@@ -245,6 +245,10 @@ const SchematicQuestion = () => {
 
       // Check the output against the reference solution
       for (const [key, refValue] of Object.entries(referenceSolution)) {
+        if (key.startsWith('I')) {
+          continue;
+        }
+        
         const outputValue = outputDict[key];
         // Check if the key exists in the output and compare the values
         if (outputValue !== undefined) {
