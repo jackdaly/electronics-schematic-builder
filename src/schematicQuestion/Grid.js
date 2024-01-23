@@ -91,7 +91,7 @@ const GridCell = ({ onDrop, x, y, numRows, numCols }) => {
   );
 };
 
-const Port = ({ componentId, portId, onPortClick, x, y, degree, devMode }) => {
+const Port = ({ componentId, portId, x, y, degree, devMode }) => {
   const GridSize = useGridSize(); // Get the current GridSize from the context
   // Adjust for the grid's offset and the port's size
   const portx = x * GridSize + (portId === "input" ? 0 : GridSize);
@@ -106,7 +106,6 @@ const Port = ({ componentId, portId, onPortClick, x, y, degree, devMode }) => {
       data-x={portx}
       data-y={porty}
       className="port"
-      onClick={(e) => onPortClick(e, componentId, portId, portx, porty)}
       style={{
         width: `${portSize}px`,
         height: `${portSize}px`,
@@ -129,6 +128,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
   const [lines, setLines] = useState([]); // Store lines
   const [currentLine, setCurrentLine] = useState(null); // Currently drawn line
   const [isDrawing, setIsDrawing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const baseCellWidth = 50;
 
@@ -172,14 +172,12 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
     };
   }, [updateGridSize]); // UpdateGridSize has to be listed in the dependency array
 
-  useEffect(
-    () => {
-      console.log("Component re-rendered. Current state:", {
-        currentLine,
-        currentLineRef,
-      });
-    }
-  );
+  useEffect(() => {
+    console.log("Component re-rendered. Current state:", {
+      currentLine,
+      currentLineRef,
+    });
+  });
 
   const currentLineRef = useRef(null);
   console.log("Lines to render:", lines);
@@ -307,7 +305,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
   //-----------------------
 
   useEffect(() => {
-    console.log("Synchronize ref with state",currentLine)
+    console.log("Synchronize ref with state", currentLine);
     // Synchronize ref with state
     currentLineRef.current = currentLine;
   }, [currentLine]);
@@ -427,20 +425,6 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
     },
     [lines] //, onLinesUpdate]
   ); // Include all used state and props in dependency array
-
-  // When double-clicking, remove the last line drawn by filtering it out from the lines array using the ID
-  const handleDoubleClick = useCallback(() => {
-    console.log("handleDoubleClick")
-    if (isDrawing && currentLine !== null) {
-      console.log("handleDoubleClick currentLineRef",currentLine)
-      setLines((prevLines) =>
-        prevLines.filter((line) => line.id !== currentLine.id)
-      );
-      setCurrentLine(null); // Clear the current line
-      currentLineRef.current = null; // Clear the reference
-      setIsDrawing(false); // Stop drawing
-    }
-  }, [isDrawing]);
 
   const handlePortClick = (e, componentId, portId, x, y) => {
     e.stopPropagation(); // This stops the event from propagating further
@@ -671,12 +655,24 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
     }
   };
 
+  const getCoordinates = (e) => {
+    //Decide if its mouse or touch
+    if (e.touches) {
+      // Touch event
+      console.log("For touch event");
+      const touch = e.touches[0];
+      return { clientX: touch.clientX, clientY: touch.clientY };
+    } else {
+      // Mouse event
+      console.log("For mouse event");
+      return { clientX: e.clientX, clientY: e.clientY };
+    }
+  };
+
   //Line follow finger:
   const addSegmentToLine = (e) => {
-    console.log("Touch Adding segment to line");
-    const touch = e.touches[0];
-    const clientX = touch.clientX;
-    const clientY = touch.clientY;
+    console.log("Adding segment to line");
+    const { clientX, clientY } = getCoordinates(e);
     // Adjust coordinates relative to the SVG container if necessary
     const svgRect = containerRef.current.getBoundingClientRect();
     const relativeX = clientX - svgRect.left;
@@ -692,7 +688,11 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
           // Ensure segments is an array before pushing to it
           const segments = current.segments || [];
           const lastSegment = segments[segments.length - 1];
-          if (!lastSegment || lastSegment.x2 !== snappedX || lastSegment.y2 !== snappedY) {
+          if (
+            !lastSegment ||
+            lastSegment.x2 !== snappedX ||
+            lastSegment.y2 !== snappedY
+          ) {
             // Add a new segment to the line
             segments.push({
               x1: lastSegment ? lastSegment.x2 : snappedX,
@@ -707,7 +707,6 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
         // If there's no current line, just return current to avoid changing state
         return current;
       });
-      
     } catch (err) {
       console.error(err.message);
     }
@@ -749,7 +748,6 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
         e.preventDefault(); // Prevent default behavior like scrolling
 
         addSegmentToLine(e);
-        // updateLineToCursor(touch.clientX, touch.clientY);
       }
     },
     [addSegmentToLine, isDrawing]
@@ -859,39 +857,99 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
     [handlePortClick]
   );
 
-  let clickTimeout = null;
-  let clickCount = 0;
+  // Mouse event handlers
+  const handleMouseDown = useCallback(
+    (e) => {
+      console.log("Mouse down triggered: ", e);
+      const elementUnderCursor = document.elementFromPoint(
+        e.clientX,
+        e.clientY
+      );
 
-  const handleClick = (e) => {
-    clickCount += 1;
+      if (elementUnderCursor.classList.contains("port")) {
+        console.log("Mouse down started on port");
 
-    if (clickTimeout !== null) {
-      clearTimeout(clickTimeout);
-    }
+        // Retrieve the componentId and portId from the dataset of the element
+        const componentId = elementUnderCursor.dataset.componentId;
+        const portId = elementUnderCursor.dataset.portId;
 
-    clickTimeout = setTimeout(() => {
-      if (clickCount === 1) {
-        console.log('Single click action triggered');
-        handleGridClick(e);
-      } else if (clickCount > 1) {
-        console.log('Double click action triggered');
-        handleDoubleClick(e);
+        console.log("componentId / portid", componentId, portId);
+
+        setIsDrawing(true); // Start drawing only if the mouse down starts on a port
+        setIsDragging(true); // Start drawing only if the mouse down starts on a port
+        handlePortClick(e, componentId, portId, e.clientX, e.clientY);
       }
-      clickCount = 0;
-    }, 300); // 300 ms is typically a good delay, but you might need to adjust this.
-  };
+    },
+    [handlePortClick]
+  );
+
+  const handleMouseMove = useCallback(
+    (e) => {
+      console.log("Mouse move triggered");
+      if (isDrawing && isDragging) {
+        console.log("Mouse Move is drawing");
+        // Only update the line if drawing is active
+        e.preventDefault(); // Prevent default behavior like selecting text
+
+        addSegmentToLine(e);
+      }
+    },
+    [addSegmentToLine, isDrawing]
+  );
+
+  const handleMouseUp = useCallback(
+    (e) => {
+      console.log("Mouse Handle Mouse Up ran");
+      if (isDrawing && isDragging) {
+        // Only process the mouse up if a line is being drawn
+        const elementUnderCursor = document.elementFromPoint(
+          e.clientX,
+          e.clientY
+        );
+
+        if (elementUnderCursor.classList.contains("port")) {
+          // Retrieve the componentId and portId from the dataset of the element
+          const componentId = elementUnderCursor.dataset.componentId;
+          const portId = elementUnderCursor.dataset.portId;
+
+          const isValidLine =
+            currentLineRef.current &&
+            currentLineRef.current.from.componentId !== componentId &&
+            !currentLineRef.current.segments.includes(undefined) &&
+            (currentLineRef.current.x1 !== currentLineRef.current.x2 ||
+              currentLineRef.current.y1 !== currentLineRef.current.y2);
+
+          if (isValidLine) {
+            console.log(
+              "Line is Valid: componentId / portid",
+              componentId,
+              portId
+            );
+            // Check if it's a valid line
+            const processedLine = processLineSegments(currentLineRef.current);
+            setCurrentLine(processedLine);
+            console.log("Mouse Up handlePortClick", currentLineRef);
+            handlePortClick(e, componentId, portId, e.clientX, e.clientY);
+          } else {
+            setCurrentLine(null); // Cancel the line if ended elsewhere
+            currentLineRef.current = null;
+          }
+        } else {
+          setCurrentLine(null); // Cancel the line if ended elsewhere
+          currentLineRef.current = null;
+        }
+        setIsDrawing(false); // Stop drawing in any case
+        setIsDragging(false);
+      }
+    },
+    [handlePortClick]
+  );
 
   // Set up event listeners in useEffect
   useEffect(() => {
     // Check if the device supports touch events
     const isTouchDevice =
       "ontouchstart" in window || navigator.maxTouchPoints > 0;
-
-    // const handleTouchMove = (e) => {
-    //   e.preventDefault(); // Prevent scrolling when touching the grid
-    //   addSegmentToLine(e);
-    //   //updateLineToCursor(e);
-    // };
 
     const gridElement = document.querySelector(".grid");
     console.log("Is touch device? ", isTouchDevice);
@@ -908,13 +966,14 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
       }
     } else {
       // Add mouse event listeners for non-touch devices
-      gridElement.addEventListener("click", handleClick);
-      // gridElement.addEventListener("click", handleGridClick);
-      // gridElement.addEventListener("dblclick", handleDoubleClick);
-      if (isDrawing) {
-        document.addEventListener("mousemove", updateLineToCursor);
+      document.addEventListener("mousedown", handleMouseDown);
+      document.addEventListener("mouseup", handleMouseUp);
+      if (isDrawing && isDragging) {
+        console.log("Mouse Add move event");
+        document.addEventListener("mousemove", handleMouseMove);
       } else {
-        document.removeEventListener("mousemove", updateLineToCursor);
+        console.log("Mouse Removed move event");
+        document.removeEventListener("mousemove", handleMouseMove);
       }
     }
 
@@ -925,17 +984,17 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
         document.removeEventListener("touchmove", handleTouchMove);
         document.removeEventListener("touchend", handleTouchEnd);
       } else {
-        document.removeEventListener("mousemove", updateLineToCursor);
-        gridElement.removeEventListener("click", handleClick);
-        // gridElement.removeEventListener("click", handleGridClick);
-        // gridElement.removeEventListener("dblclick", handleDoubleClick);
+        document.removeEventListener("mouseup", handleMouseUp);
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mousedown", handleMouseDown);
       }
     };
   }, [
     isDrawing,
-    updateLineToCursor,
-    handleGridClick,
-    handleDoubleClick,
+    isDragging,
+    handleMouseDown,
+    handleMouseUp,
+    handleMouseMove,
     handleTouchStart,
     handleTouchMove,
     handleTouchEnd,
@@ -977,12 +1036,6 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
         return comp;
       })
     );
-  };
-
-  const handleDragStart = () => {
-    setCurrentLine(null);
-    currentLineRef.current = null;
-    setIsDrawing(false);
   };
 
   const handleDrop = (item, x, y) => {
@@ -1040,12 +1093,6 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
       }
       return null;
     };
-    // console.log("Position GRID: ", `${component.x}`, `${component.y}`);
-    // console.log(
-    //   "Position X/Y: ",
-    //   `${component.x * GridSize}px`,
-    //   `${component.y * GridSize - GridSize / 2}px`
-    // );
 
     // Determine the unit based on the component type
     let displayValue = component.value;
@@ -1081,7 +1128,6 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
         <Port
           componentId={component.id}
           portId="input"
-          onPortClick={handlePortClick}
           x={component.x}
           y={component.y}
           degree={component.rotation || 0}
@@ -1092,7 +1138,6 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
           <Port
             componentId={component.id}
             portId="output"
-            onPortClick={handlePortClick}
             x={component.x}
             y={component.y}
             degree={component.rotation || 0}
@@ -1187,7 +1232,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
           {/* Render stored lines with labels */}
           {lines.map((line, index) => {
             console.log(`Rendering line ${index}:`, line);
-            if (!line.segments) {
+            if (line.segments === null) {
               console.error("Line without segments encountered", line);
               return null; // Skip rendering this line
             }
