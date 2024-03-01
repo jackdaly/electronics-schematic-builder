@@ -150,7 +150,7 @@ const PortCircle = ({ portId, x, y, degree, devMode }) => {
   );
 };
 
-const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
+const Grid = ({ components, setComponents, devMode, onLinesUpdate,currentQuestionIndex  }) => {
   //const [components, setComponents] = useState([]);
   const [lines, setLines] = useState([]); // Store lines
   const [currentLine, setCurrentLine] = useState(null); // Currently drawn line
@@ -198,6 +198,14 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
       window.removeEventListener("resize", updateGridSize);
     };
   }, [updateGridSize]); // UpdateGridSize has to be listed in the dependency array
+
+  // useEffect to reset state when the question changes
+  useEffect(() => {
+    // Reset the states you want to clear
+    setComponents([]); // Reset components
+
+  }, [currentQuestionIndex]); // Listen for changes to 'currentQuestionIndex'
+
 
   useEffect(() => {
     console.log("Component re-rendered. Current state:", {
@@ -1392,7 +1400,7 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
 
           {/* Render stored lines with labels */}
           {lines.map((line, index) => {
-            console.log(`Rendering line ${index}:`, line);
+            //console.log(`Rendering line ${index}:`, line);
             if (line.segments === null) {
               console.error("Line without segments encountered", line);
               return null; // Skip rendering this line
@@ -1403,10 +1411,10 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
                   <>
                     {line.segments.map((segment, segIndex) => {
                       // Optionally, log each segment as well
-                      console.log(
-                        `Rendering segment ${segIndex} of line ${index}:`,
-                        segment
-                      );
+                      // console.log(
+                      //   `Rendering segment ${segIndex} of line ${index}:`,
+                      //   segment
+                      // );
 
                       return (
                         <line
@@ -1423,10 +1431,10 @@ const Grid = ({ components, setComponents, devMode, onLinesUpdate }) => {
                     {/* Render label for the line */}
                     {line.label && line.label.text && (
                       <>
-                        {console.log(
+                        {/* {console.log(
                           `Rendering label for line ${index}:`,
                           line.label
-                        )}
+                        )} */}
                         <text
                           x={line.label.position.x + 5}
                           y={line.label.position.y + 5}

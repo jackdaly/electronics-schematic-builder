@@ -111,11 +111,13 @@ const ComponentItem = ({ component, isDragged }) => {
   );
 };
 
-const Toolbar = ({ components, answerState, setAnswerState }) => {
+const Toolbar = ({ components, answerState, setAnswerState,AnswerMsg }) => {
   const [draggedComponents, setDraggedComponents] = useState({});
 
   const [isOverflowing, setIsOverflowing] = useState(false);
   const toolbarRef = useRef(null);
+
+  console.log("AnswerMsg",AnswerMsg)
 
   useEffect(() => {
     if (toolbarRef.current) {
@@ -203,24 +205,15 @@ const Toolbar = ({ components, answerState, setAnswerState }) => {
         </div>
       )}
       {answerState === "incorrect" && (
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <img
-            src={`/assets/incorrectSymbol.svg`}
-            alt="correctSymbol"
-            style={{
-              width: "50px",
-              height: "50px",
-              userSelect: "none",
-            }}
-          />
-          <h3
-            style={{
-              color: "#EA4448",
-            }}
-          >
-            Incorrect. Try again!
-          </h3>
-        </div>
+       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+         <img src={`/assets/incorrectSymbol.svg`} alt="Incorrect Symbol" style={{ width: "50px", height: "50px" }} />
+         <h3 style={{ color: "#EA4448" }}>Incorrect.</h3>
+       </div>
+       <div style={{ fontSize: "14px", textAlign: "center", color: "#EA4448" }}>
+       {AnswerMsg[0].reason}
+       </div>
+     </div>
       )}
     </div>
   );

@@ -16,7 +16,7 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<WelcomePage />} />
-        <Route path="/schematic-question" element={<SchematicQuestion />} />
+        <Route path="/schematic-question/:questionId" element={<SchematicQuestion />} />
         <Route path="/EndPage" element={<EndPage />} />
         {/* Add other routes as needed */}
       </Routes>

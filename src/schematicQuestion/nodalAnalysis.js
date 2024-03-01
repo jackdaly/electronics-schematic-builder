@@ -1222,24 +1222,6 @@ function nodeGenerate(circuit, connection_list_Function) {
     }
   }
 
-  //   function update_conn_label() {
-  //     for (var i = 0; i < connection_list.length; i++) {
-  //       connection_list[i].label_text = return_node_num_from_port_id(
-  //         connection_list[i].src_node
-  //       );
-  //     }
-
-  //     app.view.lines.data.forEach((ele) => {
-  //       connection_list.forEach((conn) => {
-  //         if (conn.conn_id == ele["id"]) {
-  //           ele.label.setText(conn.label_text);
-  //         }
-  //       });
-  //     });
-  //   }
-  //   update_conn_label();
-  //   updatePreview(app.view);
-  //   displayJSON(app.view);
 }
 
 export const simulate = (circuitData, mappedConnections, lines) => {
@@ -1844,27 +1826,6 @@ try {
 
   console.log("lines", lines); // Print the entire dictionary
 
-  // const updateLineLabels = (lines, var_list, nodes_list, output_matrix) => {
-  //   lines.forEach(line => {
-  //     if (line.from && line.to) {
-
-  // const fromNodeNum = return_node_num_from_port_id(`${line.from.componentId}_${line.from.portId}`, nodes_list);
-  // const toNodeNum = return_node_num_from_port_id(`${line.to.componentId}_${line.to.portId}`, nodes_list);
-
-  //       const fromNodeIndex = var_list.findIndex(v => v.includes("V_" + (fromNodeNum + 1)));
-  //       const toNodeIndex = var_list.findIndex(v => v.includes("V_" + (toNodeNum + 1)));
-
-  //       const fromVoltage = fromNodeIndex !== -1 ? output_matrix[fromNodeIndex][0].toFixed(2) : null;
-  //       const toVoltage = toNodeIndex !== -1 ? output_matrix[toNodeIndex][0].toFixed(2) : null;
-
-  //       line.label = {
-  //         ...line.label, // Retain the existing properties of the label, especially the position
-  //         text: `N${fromNodeNum}: ${fromVoltage}V` //, Node ${toNodeNum}: ${toVoltage}V
-  //       };
-  //     }
-  //   });
-  // };
-
   const updateLineLabels = (lines, outputDict, nodes_list) => {
     lines.forEach((line) => {
       // Check if the line connects to b1_input, if so, set the voltage to 0V.
@@ -1906,54 +1867,6 @@ try {
   console.log("Before Lines List ", lines);
   updateLineLabels(lines, outputDict, nodes_list);
   console.log("Update node labels", lines);
-
-  //   var img = document.getElementById("preview");
-  //   var button2 = document.createElement("a");
-  //   button2.setAttribute("class", "btn btn-primary btn-modal btn-lg");
-  //   button2.setAttribute("style", "left: 60%");
-  //   button2.setAttribute("href", img.src);
-  //   button2.setAttribute("download", "diagram.png");
-  //   button2.innerHTML = "Save image as PNG";
-  //   output.appendChild(button2);
-  //   $(".mask").addClass("active");
-
-  //   function update_cont_srcs() {
-  //     app.view.figures.data.forEach((ele) => {
-  //       if (ele.cssClass == "VCCS") {
-  //         vccs_list.forEach((e) => {
-  //           if (e.id == ele.id) {
-  //             ele.label1.setText(e.node_m);
-  //             ele.label2.setText(e.node_n);
-  //           }
-  //         });
-  //       } else if (ele.cssClass == "VCVS") {
-  //         vcvs_list.forEach((e) => {
-  //           if (e.id == ele.id) {
-  //             ele.label1.setText(e.node_m);
-  //             ele.label2.setText(e.node_n);
-  //           }
-  //         });
-  //       } else if (ele.cssClass == "CCCS_Gen") {
-  //         cccs_gen_list.forEach((e) => {
-  //           if (e.id == ele.id) {
-  //             ele.label1.setText(e.node_m);
-  //             ele.label2.setText(e.node_n);
-  //           }
-  //         });
-  //       } else if (ele.cssClass == "CCVS_Gen") {
-  //         ccvs_gen_list.forEach((e) => {
-  //           if (e.id == ele.id) {
-  //             ele.label1.setText(e.node_m);
-  //             ele.label2.setText(e.node_n);
-  //           }
-  //         });
-  //       }
-  //     });
-  //   }
-  //   //Update the components text
-  //   update_cont_srcs();
-  //   updatePreview(app.view);
-  //   console.log("final", app.view);
 
   console.log("End Of Simulation");
   return [outputDict, nodes_list];
